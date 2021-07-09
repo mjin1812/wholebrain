@@ -1,9 +1,10 @@
+data(connectivity, envir=environment())
 
 update.wholebrain<-function(){
 	detach('package:wholebrain', unload=TRUE)
 	remove.packages("wholebrain")
 	if( .Platform$OS.type=="windows" ){
-		devtools::install_github("tractatus/wholebrain", args='--no-multiarch')
+		devtools::install_github("tractatus/wholebrain", INSTALL_opts=c("--no-multiarch"))
 	}else{
 		devtools::install_github("tractatus/wholebrain")
 	}
@@ -652,5 +653,153 @@ inside.blobs<-function(dataset, blobs){
     test<-(lapply(unique(blobs$soma$contour.ID), function(x)point.in.polygon(dataset$x, dataset$y, blobs$soma$contour.x[which(blobs$soma$contour.ID == x)], blobs$soma$contour.y[which(blobs$soma$contour.ID == x)])))
     return(apply(do.call("cbind", test), 1, sum)>0)
   }
+}
+
+get.region.from.coordinate<-function(AP, ML, DV){
+    url<-paste0('http://mouse.brain-map.org/agea/data/P56/voxel_info?seed=', round(-981.1*AP+5244.1,0), '%2C', round(abs(DV)*1000,0), '%2C', round(1000*(ML+11.256/2), 0) )
+    data<-data.frame(id = integer(), abbreviation = character(),  name = character(),  color = character()  )
+    for(i in seq_along(url)){
+        doc <- xmlParse(url[i])
+        doc<-xmlToDataFrame(xpathApply(doc, "//voxelInfo/voxel/label"))
+        data<-rbind(data, doc)
+    }
+    
+    return(data)
+}
+
+
+
+
+get.projection.strength<-function(target = cbind(AP, ML, DV), source = cbind(AP, ML, DV), figure = 4){
+    cat('Fetching from Allen atlas...\n')
+    if(figure == 4){
+        figX<-fig4
+    }else{
+        figX<-fig3
+    }
+    target.acronym<-get.region.from.coordinate(target[,1], target[,2], target[,3])$abbreviation
+    cat('DONE\n')
+    target.acronym<-as.character(target.acronym)
+    
+    simplify<-function(target.acronym, figX){
+        need.to.fetch <- target.acronym %in% row.names(figX$ipsi)
+        for(i in which(!need.to.fetch)){
+            parent <- get.acronym.parent(target.acronym[i])
+            if( parent %in% row.names(figX$ipsi) ){
+                target.acronym[i] <- parent
+            }
+        }
+        return(target.acronym)
+    }
+    
+    INSERT_NA_ROW <- function(indice, tabla) {
+        new_Row <- NA
+        colName<-names(tabla)
+        rowName<-row.names(tabla)
+        long <- NROW(tabla)
+        if(long>1){
+            new_Data<- rbind(tabla[1:indice,], new_Row ,tabla[(indice + 1):(long),])
+            new_Data<-t(new_Data)
+            tabla<- rbind(new_Data[1:indice,], new_Row ,new_Data[(indice + 1):(long),])
+            tabla<-data.frame(t(tabla))
+        }else{
+            new_Data<- tabla[1:(indice + 1),]
+            new_Data<-t(new_Data)
+            tabla<- rbind(new_Data[1:indice,], NA ,new_Data[(indice + 1):nrow(new_Data),])
+            tabla<-data.frame(t(tabla))
+        }
+        
+        names(tabla)[-(indice+1)]<-colName
+        row.names(tabla)[-(indice+1)]<-rowName
+        index<-which(row.names(tabla) == 'NA')
+        if(length(index)>0){
+            row.names(tabla)[index]<-paste('NA', seq_along(index), sep='.')
+            names(tabla)[index]<-paste('NA', seq_along(index), sep='.')
+        }
+        
+        return(tabla)
+    }
+    
+    target.acronym<-simplify(target.acronym, figX)
+    
+    
+    source.acronym<-get.region.from.coordinate(source[,1], source[,2], source[,3])$abbreviation
+    source.acronym<-as.character(source.acronym)
+    source.acronym<-simplify(source.acronym, figX)
+    
+    ipsi<-figX$ipsi[which(row.names(figX$ipsi) %in% source.acronym ), which(row.names(figX$ipsi) %in% target.acronym )]
+    for(i in which(source.acronym == 'NA') - 1){
+        ipsi<-INSERT_NA_ROW(i, ipsi)
+    }
+    
+    
+    contra<-figX$contra[which(row.names(figX$contra) %in% source.acronym ), which(row.names(figX$contra) %in% target.acronym )]
+    for(i in which(source.acronym == 'NA') - 1){
+        contra<-INSERT_NA_ROW(i, contra)
+    }
+    
+    connections<-list(ipsi = ipsi, contra = contra)
+    
+    labels.dir <- expand.grid(row.names(connections$ipsi), names(connections$ipsi))
+    
+    labels.dir <- apply( labels.dir , 1 , paste , collapse = " -> " )
+    
+    projections <- data.frame(projection = labels.dir, weight = matrix(data.matrix(connections$ipsi), ncol=1), contra = FALSE )
+    
+    labels.dir <- expand.grid(row.names(connections$contra), names(connections$contra))
+    
+    labels.dir <- apply( labels.dir , 1 , paste , collapse = " -> " )
+    
+    projections.tmp <- data.frame(projection = labels.dir, weight = matrix(data.matrix(connections$ipsi), ncol=1), contra = TRUE )
+    
+    connections$projections <- rbind(projections, projections.tmp)
+    
+    return(connections)
+}
+
+
+get.projection<-function(injection = c(AP, DV, ML), AP = numeric(), DV = numeric(), ML = numeric(), display = FALSE ){
+    
+    matched.scale<- round(c(paxTOallen(injection[1]), -injection[2]*1000/25, injection[3]*1000/25+456/2) *c(13150/528, 7900/320, 11200/456), 0)
+    url.download<-'http://connectivity.brain-map.org/projection/csv?criteria=service::mouse_connectivity_injection_coordinate[injection_structures$eq8,304325711][seed_point$eq%d,%d,%d][primary_structure_only$eqtrue][injection_distance_threshold$eq500]'
+    cat("Downloading from allen...\n")
+    allen.download<-read.table(url(sprintf(url.download, matched.scale[1], matched.scale[2], matched.scale[3])), sep=',', header=TRUE)
+    allen.download<-allen.download[which(allen.download$distance<500),]
+    experiment.id<-allen.download$id[which.max(allen.download$injection.volume)]
+    
+    file.to.download <- sprintf("http://api.brain-map.org/grid_data/download_file/%d??image=projection_density&resolution=100", experiment.id)
+    file.to.open<-download.file(file.to.download, 'trashThis.nrrd', method = 'curl')
+    
+    scale.factor<-8
+    src<-list(AP = integer(), DV= integer(), ML= integer())
+    src$AP<- as.integer(paxTOallen(injection[1])/scale.factor)
+    src$DV<- as.integer((-injection[2] * 1000/25)/scale.factor)
+    src$ML<- as.integer( (injection[3]* 1000/25 + 456/2)/scale.factor )
+    trgt<-list(AP = integer(), DV= integer(), ML= integer())
+    
+    trgt$AP <- as.integer(paxTOallen(AP)/scale.factor)
+    trgt$DV <- as.integer(-(DV) * 1000/25/scale.factor ) #as.integer(-(DV-1.75) * 1000/25/scale.factor )
+    trgt$ML <- as.integer( (ML* 1000/25 + 456/2)/scale.factor)
+    
+    VOL<-read.nrrd('trashThis.nrrd')
+    VOL<-VOL>0+0
+    VOL<-VOL[seq(1, dim(VOL)[1], by=2), seq(1, dim(VOL)[2], by=2), seq(1, dim(VOL)[3], by=2)]
+    
+    if(display){
+        plot(c(0, dim(VOL)[3]), c(dim(VOL)[2], 0), ylim=c(40, 0), asp=1, axes=FALSE, ylab='', xlab='', type='n')
+        rasterImage(VOL[src$AP, , ]>0, xleft = 0, ybottom = 40, xright = 57, ytop = 0)
+        points(src$ML, src$DV, pch=16, col='orange')
+        plot(c(0, dim(VOL)[3]), c(dim(VOL)[2], 0), ylim=c(40, 0), asp=1, axes=FALSE, ylab='', xlab='', type='n')
+        rasterImage(VOL[trgt$AP[3], , ]>0, xleft = 0, ybottom = 40, xright = 57, ytop = 0)
+        points(trgt$ML[1], trgt$DV[1], pch=16, col='purple')
+    }
+    
+    
+    paths<-list()
+    for(i in seq_along(trgt$AP)){
+        paths[[i]]<-searchPath(VOL, c(src$AP, src$DV, src$ML), c(trgt$AP[i], trgt$DV[i], trgt$ML[i]))
+    }
+
+    return(paths)
 }
  
