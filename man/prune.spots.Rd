@@ -4,8 +4,7 @@
 \alias{prune.spots}
 \title{Prune Cy3 spots from spatial transcriptomics (ST) array}
 \usage{
-prune.spots(segmentation, array.dim = c(35, 33), corner = 2,
-  tol.dist = 200)
+prune.spots(segmentation, array.dim = c(35, 33), corner = 2, tol.dist = 200)
 }
 \arguments{
 \item{segmentation}{a segmentation list obtained from segment()}

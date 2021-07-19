@@ -4,9 +4,17 @@
 \alias{segment}
 \title{Segment features}
 \usage{
-segment(input, numthresh = 8, downsample = 0.25, filter = NULL,
-  post = NULL, pre = NULL, get.contour = FALSE, channel = 0,
-  display = TRUE)
+segment(
+  input,
+  numthresh = 8,
+  downsample = 0.25,
+  filter = NULL,
+  post = NULL,
+  pre = NULL,
+  get.contour = FALSE,
+  channel = 0,
+  display = TRUE
+)
 }
 \arguments{
 \item{input}{file path to a valid monochrome 16-bit TIFF.}

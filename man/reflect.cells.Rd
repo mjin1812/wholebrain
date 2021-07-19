@@ -13,8 +13,6 @@ reflect.cells(dataset)
 
 \item{images}{a character vector with file paths for images.}
 
-\item{images}{a character vector with file paths for images.}
-
 \item{right.hemisphere}{boolean, if TRUE then cells will be flipped to right side.}
 }
 \description{

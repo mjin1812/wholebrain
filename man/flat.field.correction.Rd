@@ -4,9 +4,15 @@
 \alias{flat.field.correction}
 \title{Flat-field correction}
 \usage{
-flat.field.correction(input, output.folder = "../",
-  output.prefix = "FFC", kernel = 301, show.image = FALSE,
-  gain.image.name = "gain_{output.folder}.tif", verbose = TRUE)
+flat.field.correction(
+  input,
+  output.folder = "../",
+  output.prefix = "FFC",
+  kernel = 301,
+  show.image = FALSE,
+  gain.image.name = "gain_{output.folder}.tif",
+  verbose = TRUE
+)
 }
 \arguments{
 \item{input}{input a character vector consisting of the full path name to 16-bit raw tif image files. For microscopy the most common systematic error is vignetting where dark shades are stronger among the pixels on the edges.}

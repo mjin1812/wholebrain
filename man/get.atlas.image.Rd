@@ -4,9 +4,16 @@
 \alias{get.atlas.image}
 \title{Get atlas binary image}
 \usage{
-get.atlas.image(coordinate, directory = "TEMPORARY", width = 456,
-  plane = "coronal", plate = FALSE, right.hemisphere = NULL,
-  close.image = TRUE, save.image = TRUE)
+get.atlas.image(
+  coordinate,
+  directory = "TEMPORARY",
+  width = 456,
+  plane = "coronal",
+  plate = FALSE,
+  right.hemisphere = NULL,
+  close.image = TRUE,
+  save.image = TRUE
+)
 }
 \arguments{
 \item{coordinate}{matching coordinates in the main plane to be registered to (in millimeters).}
@@ -21,10 +28,4 @@ get.atlas.image(coordinate, directory = "TEMPORARY", width = 456,
 }
 \description{
 Get atlas binary image
-}
-\examples{
-#path to image
-image<-'/Volumes/microscope/animal001/slide001/section001.tif'
-#register the image
-registration(image, AP=1.05, brain.threshold=220)
 }

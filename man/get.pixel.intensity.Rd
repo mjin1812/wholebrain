@@ -4,8 +4,7 @@
 \alias{get.pixel.intensity}
 \title{Get pixel intensity}
 \usage{
-get.pixel.intensity(input, x, y, type = "SNR", roi = 9,
-  background = 40)
+get.pixel.intensity(input, x, y, type = "SNR", roi = 9, background = 40)
 }
 \arguments{
 \item{input}{file path to a valid monochrome 16-bit TIFF.}

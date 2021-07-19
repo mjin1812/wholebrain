@@ -4,9 +4,18 @@
 \alias{cortical.plot}
 \title{Cortical plot}
 \usage{
-cortical.plot(dataset, type = c("left", "right", "top"),
-  show.sections = TRUE, labels = TRUE, ml.cut = 2, dv.cut = -2.8,
-  col = NULL, cex = 0.5, pch = 16, pt.bg = NULL)
+cortical.plot(
+  dataset,
+  type = c("left", "right", "top"),
+  show.sections = TRUE,
+  labels = TRUE,
+  ml.cut = 2,
+  dv.cut = -2.8,
+  col = NULL,
+  cex = 0.5,
+  pch = 16,
+  pt.bg = NULL
+)
 }
 \arguments{
 \item{dataset}{a dataset frame obtained by get.cell.ids() or by inspect.registration().}
@@ -31,5 +40,5 @@ cortical.plot(dataset, type = c("left", "right", "top"),
 Plots schematic brain(s) of cells in cortex from different views.
 }
 \examples{
-ccortical.plot(dataset, type = c('left', 'right', 'top') )
+cortical.plot(dataset, type = c('left', 'right', 'top') )
 }

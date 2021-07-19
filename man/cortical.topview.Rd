@@ -4,8 +4,16 @@
 \alias{cortical.topview}
 \title{Cortical topview plot}
 \usage{
-cortical.topview(dataset, dv.cut = -2.8, show.sections = TRUE,
-  labels = TRUE, col = NULL, pch = 16, cex = 0.5, pt.bg = NULL)
+cortical.topview(
+  dataset,
+  dv.cut = -2.8,
+  show.sections = TRUE,
+  labels = TRUE,
+  col = NULL,
+  pch = 16,
+  cex = 0.5,
+  pt.bg = NULL
+)
 }
 \arguments{
 \item{dataset}{a dataset frame obtained by get.cell.ids() or by inspect.registration().}

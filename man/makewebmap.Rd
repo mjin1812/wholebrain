@@ -4,10 +4,21 @@
 \alias{makewebmap}
 \title{Generate a web-map from a sample section}
 \usage{
-makewebmap(img, filter, registration = NULL, dataset = NULL,
-  folder.name = NULL, scale = 0.64, bregmaX = 0, bregmaY = 0,
-  fluorophore = "Rabies-EGFP", combine = NULL, enable.drawing = TRUE,
-  write.tiles = TRUE, verbose = FALSE)
+makewebmap(
+  img,
+  filter,
+  registration = NULL,
+  dataset = NULL,
+  folder.name = NULL,
+  scale = 0.64,
+  bregmaX = 0,
+  bregmaY = 0,
+  fluorophore = "Rabies-EGFP",
+  combine = NULL,
+  enable.drawing = TRUE,
+  write.tiles = TRUE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{img}{input a character vector consisting of the full path name to 16-bit raw tif image files.}

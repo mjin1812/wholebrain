@@ -15,6 +15,7 @@ data(ontology, envir=environment())
 #' @param width the pixel width to save as TIFF, default is 456px, but 11300 is high res.
 #' @param verbose boolean value. If true diagnostic output is written to the R console. Deafult is true.
 #' @examples
+#' @export
 #' #path to image
 #' image<-'/Volumes/microscope/animal001/slide001/section001.tif'
 #' #register the image
@@ -568,11 +569,12 @@ cpdNonrigid<-function(file, targetP.x, targetP.y, referenceP.x, referenceP.y, re
 #' @param brain.threshold a integer value, which determien sthe segmentation of the brain slice.
 #' @param verbose boolean value. If true diagnostic output is written to the R console. Deafult is true.
 #' @examples
+#' @export
 #' #path to image
 #' image<-'/Volumes/microscope/animal001/slide001/section001.tif'
 #' #register the image
 #' registration(image, AP=1.05, brain.threshold=220)
-registration_MLA <- function (input,
+registration <- function (input,
                               coordinate = NULL,
                               plane = "coronal",
                               right.hemisphere = NULL, 
@@ -1217,6 +1219,9 @@ inspect.registration<-function(registration,segmentation,soma=TRUE, forward.warp
   }
   
   index<-round(scale.factor*cbind(dataset$y, dataset$x))
+  
+  # Hot-fix for transformation out of bounds
+  index <- fix_index(index, registration$transformationgrid$mxF)
   somaX<-registration$transformationgrid$mxF[index]/scale.factor
   somaY<-registration$transformationgrid$myF[index]/scale.factor
   
@@ -1836,10 +1841,10 @@ regi_prep_files <- function(file, output.folder, verbose){
     parentpath <- output.folder
   }
   else if (output.folder == "./") {
-    parentpath <- dirname(input)[1]
+    parentpath <- dirname(file())[1]
   }
   else if (output.folder == "../") {
-    parentpath <- dirname(dirname(input))[1]
+    parentpath <- dirname(dirname(file))[1]
   }
   # Generate final output folder name
   outfolder <- paste("output", outputfile, sep = "_")

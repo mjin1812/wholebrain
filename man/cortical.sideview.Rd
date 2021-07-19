@@ -4,9 +4,17 @@
 \alias{cortical.sideview}
 \title{Cortical sideview plot}
 \usage{
-cortical.sideview(dataset, right.hemisphere = TRUE, ml.cut = 2,
-  show.sections = TRUE, labels = TRUE, col = NULL, pch = 16,
-  pt.bg = NULL)
+cortical.sideview(
+  dataset,
+  right.hemisphere = TRUE,
+  ml.cut = 2,
+  show.sections = TRUE,
+  labels = TRUE,
+  col = NULL,
+  pch = 16,
+  pt.bg = NULL,
+  cex = 1
+)
 }
 \arguments{
 \item{dataset}{a dataset frame obtained by get.cell.ids() or by inspect.registration().}

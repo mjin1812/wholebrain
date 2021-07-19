@@ -4,8 +4,7 @@
 \alias{rgb2gray}
 \title{Convert to grayscale}
 \usage{
-rgb2gray(input, verbose = TRUE, savefilename = TRUE, invert = TRUE,
-  rotate = 0)
+rgb2gray(input, verbose = TRUE, savefilename = TRUE, invert = TRUE, rotate = 0)
 }
 \arguments{
 \item{input}{input a character vector consisting of the full path name to 16-bit raw tif image files.}
