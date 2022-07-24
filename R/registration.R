@@ -1366,9 +1366,10 @@ get.parts.of<-function(coordinate=0.5, acronym='Isocortex'){
   return(roi) 
 }  
 
-get.region<-function(acronym, registration){
+get.region<-function(acronym, registration, plane = "coronal"){
   coordinate<-registration$coordinate
-  k<-which(abs(coordinate-atlasIndex$mm.from.bregma)==min(abs(coordinate-atlasIndex$mm.from.bregma)))
+  atlasIndexPlane <- atlasIndex[atlasIndex$plane == plane,]
+  k<-which(abs(coordinate-atlasIndex$mm.from.bregma)==min(abs(coordinate-atlasIndexPlane$mm.from.bregma)))
   plate.info<-EPSatlas$plate.info[[k]]  
   get.outline<-function(acronym){
     id<-id.from.acronym(acronym)
